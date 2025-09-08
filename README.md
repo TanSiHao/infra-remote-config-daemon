@@ -1,6 +1,20 @@
 # LaunchDarkly → .env Sync Daemon (Python)
 
-A Python daemon that listens to LaunchDarkly via SSE and keeps a local `.env` file in sync with evaluated feature flag values. On any flag change, it backs up the current `.env` with a timestamp and writes the latest values.
+The Python Daemon runs in the background, listens for flag changes in real time, and automatically syncs them into a .env file. Each feature flag becomes an environment variable, backups are created before updates, and changes are applied instantly — giving teams dynamic, safe, and versioned configuration without redeploys.
+
+### Technical details
+The LaunchDarkly Python Daemon is a lightweight background service that keeps application configuration in sync with LaunchDarkly feature flags — without requiring manual updates or redeploys.
+
+Once running, the daemon:
+- Connects to LaunchDarkly using the Python server-side SDK and listens for real-time flag updates via SSE (Server-Sent Events).
+- Synchronizes feature flags into a .env file, with each flag written as an environment variable that matches its flag name.
+- Supports multiple variations per flag (e.g., default, v1, v2), allowing different environments or rollout stages to map cleanly into the .env configuration.
+- Automatically backs up existing .env files before applying changes, appending a timestamp so prior configurations are preserved for traceability and rollback.
+- Updates the .env file with new values immediately when flags are toggled, rules change, or variation values are modified.
+
+In the sample implementation, the daemon manages three feature flags, each with three variations containing mock URLs. This provides a working example of how service endpoints or runtime settings can be dynamically controlled through LaunchDarkly.
+
+Ultimately, this daemon acts as a bridge between LaunchDarkly and your application runtime, ensuring that configuration changes flow seamlessly and safely into your environment variables.
 
 ## Requirements
 
