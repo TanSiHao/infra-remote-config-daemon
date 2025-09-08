@@ -72,13 +72,13 @@ terraform apply \
 
 ```mermaid
 flowchart LR
-  TF["Terraform\n(create flags with variations)"] --> LD["LaunchDarkly\nFlags & Variations"]
-  LD -->|SSE stream| Daemon["Python Daemon\nld_env_sync_daemon.py"]
-  Config["Config env vars\nLD_SDK_KEY, FLAGS, ENV_FILE_PATH,\nLD_CONTEXT_KEY/NAME, BACKUP_ENABLED"] --> Daemon
+  TF["Terraform<br/>(create flags with variations)"] --> LD["LaunchDarkly<br/>Flags & Variations"]
+  LD -->|SSE stream| Daemon["Python Daemon<br/>ld_env_sync_daemon.py"]
+  Config["Config env vars<br/>LD_SDK_KEY, FLAGS, ENV_FILE_PATH,<br/>LD_CONTEXT_KEY/NAME, BACKUP_ENABLED"] --> Daemon
   Daemon -->|evaluate flags| LD
   Daemon -->|write values| ENV[".env"]
   Daemon -. backup before write .-> Backup[".env.YYYYMMDD-HHMMSS"]
-  Apps["Downstream services\n(read from .env)"] --> ENV
+  Apps["Downstream services<br/>(read from .env)"] --> ENV
 ```
 
 ### Startup flow
