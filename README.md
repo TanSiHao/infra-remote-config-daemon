@@ -89,7 +89,7 @@ sequenceDiagram
   participant D as Python Daemon
   participant LD as LaunchDarkly
   participant F as .env File
-  U->>D: export LD_SDK_KEY; python ld_env_sync_daemon.py
+  U->>D: Export LD_SDK_KEY and run the daemon
   D->>LD: Initialize SDK, open SSE stream
   LD-->>D: Initial flags data
   D->>D: Evaluate configured flags
@@ -109,7 +109,7 @@ sequenceDiagram
   participant D as Python Daemon
   participant F as .env File
   participant Apps as Downstream Services
-  LD-->>D: SSE flag change event
+  LD-->>D: SSE flag-change event
   D->>D: Debounce (e.g., 400ms)
   D->>LD: Evaluate all managed flags
   alt .env exists
