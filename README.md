@@ -133,8 +133,7 @@ sequenceDiagram
 
 ## Demo
 
-<video src="demo%20video/Infra%20remote%20config.mp4" controls width="800">
-  Your browser does not support the video tag. You can
-  <a href="demo%20video/Infra%20remote%20config.mp4">download the video</a> instead.
-</video>
+[![Watch the demo on YouTube](https://img.youtube.com/vi/My3f_xne8kg/hqdefault.jpg)](https://youtu.be/My3f_xne8kg)
+
+Click the thumbnail to watch the demo.
 
