@@ -89,16 +89,14 @@ sequenceDiagram
   participant D as Python Daemon
   participant LD as LaunchDarkly
   participant F as .env File
-  U->>D: Export LD_SDK_KEY and run the daemon
-  D->>LD: Initialize SDK, open SSE stream
-  LD-->>D: Initial flags data
+  U->>D: Export LD_SDK_KEY and run daemon
+  D->>LD: Initialize SDK and open SSE stream
+  LD-->>D: Send initial flag data
   D->>D: Evaluate configured flags
-  alt .env exists
-    D->>F: Backup to .env.YYYYMMDD-HHMMSS
-  end
+  D->>F: Backup .env if it exists
   D->>F: Write evaluated values
-  D->>LD: Register flag value change listeners
-  D->>D: Debounced loop waiting for events
+  D->>LD: Register flag change listeners
+  D->>D: Wait for events (debounced)
 ```
 
 ### Flag change flow
@@ -109,14 +107,12 @@ sequenceDiagram
   participant D as Python Daemon
   participant F as .env File
   participant Apps as Downstream Services
-  LD-->>D: SSE flag-change event
-  D->>D: Debounce (e.g., 400ms)
+  LD-->>D: Flag change event via SSE
+  D->>D: Debounce 400ms
   D->>LD: Evaluate all managed flags
-  alt .env exists
-    D->>F: Backup .env with timestamp
-  end
+  D->>F: Backup .env with timestamp
   D->>F: Write updated flag values
-  Apps->>F: Read on next reload/startup
+  Apps->>F: Read values on next reload
 ```
 
 
