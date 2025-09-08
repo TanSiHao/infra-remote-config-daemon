@@ -68,4 +68,55 @@ terraform apply \
 
 - Empty values in `.env` usually mean the flags don’t exist (or are not string-typed) in the LaunchDarkly project/environment for your `LD_SDK_KEY`. Create them with Terraform, then the daemon will update `.env` within a second of the SSE update.
 
+## Architecture
+
+```mermaid
+flowchart LR
+  TF["Terraform\n(create flags with variations)"] --> LD["LaunchDarkly\nFlags & Variations"]
+  LD -->|SSE stream| Daemon["Python Daemon\nld_env_sync_daemon.py"]
+  Config["Config env vars\nLD_SDK_KEY, FLAGS, ENV_FILE_PATH,\nLD_CONTEXT_KEY/NAME, BACKUP_ENABLED"] --> Daemon
+  Daemon -->|evaluate flags| LD
+  Daemon -->|write values| ENV[".env"]
+  Daemon -. backup before write .-> Backup[".env.YYYYMMDD-HHMMSS"]
+  Apps["Downstream services\n(read from .env)"] --> ENV
+```
+
+### Startup flow
+
+```mermaid
+sequenceDiagram
+  participant U as User/Env
+  participant D as Python Daemon
+  participant LD as LaunchDarkly
+  participant F as .env File
+  U->>D: export LD_SDK_KEY; python ld_env_sync_daemon.py
+  D->>LD: Initialize SDK, open SSE stream
+  LD-->>D: Initial flags data
+  D->>D: Evaluate configured flags
+  alt .env exists
+    D->>F: Backup to .env.YYYYMMDD-HHMMSS
+  end
+  D->>F: Write evaluated values
+  D->>LD: Register flag value change listeners
+  D->>D: Debounced loop waiting for events
+```
+
+### Flag change flow
+
+```mermaid
+sequenceDiagram
+  participant LD as LaunchDarkly
+  participant D as Python Daemon
+  participant F as .env File
+  participant Apps as Downstream Services
+  LD-->>D: SSE flag change event
+  D->>D: Debounce (e.g., 400ms)
+  D->>LD: Evaluate all managed flags
+  alt .env exists
+    D->>F: Backup .env with timestamp
+  end
+  D->>F: Write updated flag values
+  Apps->>F: Read on next reload/startup
+```
+
 
